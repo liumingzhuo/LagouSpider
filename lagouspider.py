@@ -51,7 +51,8 @@ def parse_json(data):
         results = data.get('content').get('positionResult').get('result')
         for result in results:
             lagou = {}
-            lagou['_id'] = result.get("companyFullName") + ' - ' + result.get('positionName')
+            lagou['_id'] = result.get("companyFullName") + ' - ' + result.get('positionName') + \
+                           ' — ' + result.get('createTime')
             lagou['city'] = result.get('city')
             lagou['businessZones'] = result.get('businessZones')
             lagou['companyFullName'] = result.get('companyFullName')
