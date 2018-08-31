@@ -20,15 +20,14 @@ def get_json(keyword, page):
         'Accept':             'application/json, text/javascript, */*; q=0.01',
         'Content-Type':       'application/x-www-form-urlencoded; charset=UTF-8',
         'Origin':             'https://www.lagou.com',
-        'Referer':            'https://www.lagou.com/jobs/list_{}?city=%E6%88%90%E9%83%BD&cl=false&fromSearch=true&labelWords=&suginput='.format(
-            keyword),
+        'Referer':            'https://www.lagou.com/jobs/list_{}?city=%E6%88%90%E9%83%BD&cl=false'
+                              '&fromSearch=true&labelWords=&suginput='.format(keyword),
         'User-Agent':         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
-        'X-Anit-Forge-Code':  '0',
-        'X-Anit-Forge-Token': 'None',
-        'X-Requested-With':   'XMLHttpRequest'
-    }
+        'X-Requested-With':   'XMLHttpRequest'}
+    # 'Cookie':             '_ga=GA1.2.1176219052.1525516654; user_trace_token=20180505183734-522d0969-5050-11e8-8032-5254005c3644; LGUID=20180505183734-522d0d7e-5050-11e8-8032-5254005c3644; index_location_city=%E6%88%90%E9%83%BD; showExpriedIndex=1; showExpriedCompanyHome=1; showExpriedMyPublish=1; _gid=GA1.2.1609482079.1535252885; JSESSIONID=ABAAABAAAGFABEFAF1B82E55AD78E727FBE8F9A524F11DC; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535252885,1535388327,1535567308,1535581083; X_HTTP_TOKEN=0a538ca6731db75799ffed14888c0323; LG_LOGIN_USER_ID=1e8c26fb6976688aebb8f4404658cbe533c7012a4bb16eae; _putrc=68BFC909BD7605C8; hasDeliver=138; LGSID=20180831163854-4b41feba-acf9-11e8-b30a-5254005c3644; _gat=1; login=false; unick=""; TG-TRACK-CODE=index_search; SEARCH_ID=4432be7f74c248b99f70944d7c8d35a6; LGRID=20180831171223-f885d255-acfd-11e8-b30a-5254005c3644; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535706743'}
+
     try:
-        r = requests.post(url, headers=headers, data=data, proxies=proxy, timeout=5)
+        r = requests.post(url, headers=headers, data=data, proxies=proxy, timeout=10)
         if r.status_code == 200:
             print(r.json())
             return r.json()
@@ -119,7 +118,7 @@ if __name__ == '__main__':
 
     for t in threads:
         t.start()
-        time.sleep(15)
+        time.sleep(15) # 此处临时设置为这样，正式爬的时候线程全部启动，每个线程各取一个IP
 
     for t in threads:
         t.join()
