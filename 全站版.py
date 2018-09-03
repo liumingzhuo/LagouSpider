@@ -175,6 +175,7 @@ def save_to_mongo(data):
 
 def main():
     ''' 主函数 '''
+
     print('去吧！皮卡丘')
 
     if redis_conn.scard('un_crwaled_urls') > 0:
