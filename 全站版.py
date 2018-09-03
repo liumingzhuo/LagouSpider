@@ -20,26 +20,8 @@ headers = {
 }
 
 start_url = 'https://www.lagou.com/'
-crawled_queue = Queue()
-un_crwaled_queue = Queue()
-
-def crawl(url):
-    try:
-        r = requests.get(url, headers=headers, timeout=10)
-        if r.status_code == 200:
-            crawled_queue.put(url)
-            html = r.text
-            urls = parse_urls(html)
-            for url in urls:
-                if url not in crawled_queue:
-                    un_crwaled_queue.put(url)
-                else:
-                    continue
-        else:
-            print('crawl page %s failed, status code %s' % (url, r.status_code))
-    except Exception as e:
-        print(e)
-        return
+crawled_urls = set()
+un_crwaled_urls = set()
 
 def parse_urls(url):
     try:
@@ -66,28 +48,49 @@ def parse_position(html):
 def parse_company(html):
     pass
 
-def crawl_position(url):
+def crawl(url):
+    print('正在爬通用信息 %s' % url)
     try:
         r = requests.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
-            crawled_queue.put(url)
+            crawled_urls.add(url)
+            html = r.text
+            urls = parse_urls(html)
+            for url in urls:
+                if url not in crawled_urls:
+                    un_crwaled_urls.add(url)
+                else:
+                    continue
+        else:
+            print('crawl爬虫出错 %s, status code %s' % (url, r.status_code))
+    except Exception as e:
+        print(e)
+        return
+
+def crawl_position(url):
+    print('正在爬职位信息 %s' % url)
+    try:
+        r = requests.get(url, headers=headers, timeout=10)
+        if r.status_code == 200:
+            crawled_urls.add(url)
             html = r.text
             infos = parse_position(html)
         else:
-            print('crawl page %s failed, status code %s' % (url, r.status_code))
+            print('crawl position %s failed, status code %s' % (url, r.status_code))
     except Exception as e:
         print(e)
         return
 
 def crawl_company(url):
+    print('正在爬公司信息 %s' % url)
     try:
         r = requests.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
-            crawled_queue.put(url)
+            crawled_urls.add(url)
             html = r.text
             infos = parse_company(html)
         else:
-            print('crawl page %s failed, status code %s' % (url, r.status_code))
+            print('crawl company %s failed, status code %s' % (url, r.status_code))
     except Exception as e:
         print(e)
         return
@@ -102,12 +105,14 @@ def save_to_mongo(data):
 
 def main():
     # 将起始url放入待爬队列
-    un_crwaled_queue.put(start_url)
+    un_crwaled_urls.add(start_url)
+
+    print('放出爬虫')
 
     # 对url进行判断，分别爬取
-    while un_crwaled_queue:
+    while un_crwaled_urls:
         time.sleep(15)
-        url = un_crwaled_queue.get()
+        url = un_crwaled_urls.pop()
         if is_postion_url(url):
             crawl_position(url)
         elif is_company_url(url):
