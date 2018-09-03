@@ -48,11 +48,12 @@ def parse_jd_page(_id):
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/68.0.3440.106 Safari/537.36'}
     try:
-        s = requests.session()
-        r = s.get(url, headers=headers)
-        if r.cookies.get_dict():  # 保持cookie有效
-            print(r.cookies)
-            s.cookies.update(r.cookies)
+        # s = requests.session()
+        # r = s.get(url, headers=headers)
+        # if r.cookies.get_dict():  # 保持cookie有效
+        #     print(r.cookies)
+        #     s.cookies.update(r.cookies)
+        r = requests.get(url, headers=headers)
         html = r.text.replace('<br>', '')
         soup = BeautifulSoup(html, 'lxml')
         jd = soup.find('dd', class_='job_bt').get_text()
