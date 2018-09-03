@@ -22,31 +22,8 @@ headers = {
 start_url = 'https://www.lagou.com/'
 crawled_urls = set()
 un_crwaled_urls = set()
-
-def parse_urls(url):
-    try:
-        url_pattern = re.compile('href="(https://.*?lagou.*?)"')
-        urls = re.findall(url_pattern, url)
-        return urls
-    except Exception as e:
-        print(e)
-        return None
-
-def is_postion_url(url):
-    job_pattern = re.compile('https://www.lagou.com/jobs/\d+?.html')
-    found = re.search(job_pattern, url)
-    return bool(found)
-
-def is_company_url(url):
-    cmp_pattern = re.compile('https://www.lagou.com/gongsi/\d+?.html')
-    found = re.search(cmp_pattern, url)
-    return bool(found)
-
-def parse_position(html):
-    pass
-
-def parse_company(html):
-    pass
+failed_company = set()
+failed_position = set()
 
 def crawl(url):
     print('正在爬通用信息 %s' % url)
@@ -74,7 +51,8 @@ def crawl_position(url):
         if r.status_code == 200:
             crawled_urls.add(url)
             html = r.text
-            infos = parse_position(html)
+            data = parse_position(html)
+            save_to_mongo(data)
         else:
             print('crawl position %s failed, status code %s' % (url, r.status_code))
     except Exception as e:
@@ -87,28 +65,89 @@ def crawl_company(url):
         r = requests.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
             crawled_urls.add(url)
-            html = r.text
-            infos = parse_company(html)
+            pass
+            # infos = parse_company(html)
         else:
             print('crawl company %s failed, status code %s' % (url, r.status_code))
     except Exception as e:
         print(e)
         return
 
+def parse_urls(url):
+    try:
+        url_pattern = re.compile('href="(https://.*?lagou.*?)"')
+        urls = re.findall(url_pattern, url)
+        return urls
+    except Exception as e:
+        print(e)
+        return None
+
+def is_postion_url(url):
+    job_pattern = re.compile('https://www.lagou.com/jobs/\d+?.html')
+    found = re.search(job_pattern, url)
+    return bool(found)
+
+def is_company_url(url):
+    cmp_pattern = re.compile('https://www.lagou.com/gongsi/\d+?.html')
+    found = re.search(cmp_pattern, url)
+    return bool(found)
+
+def parse_position(html):
+    if html:
+        try:
+            soup = BeautifulSoup(html, 'lxml')
+            job_name = soup.select_one(".job-name .name").string
+            depart_name = soup.select_one(".company").string
+            city = soup.select(".job_request span")[1].string.strip('/').strip()
+            experience = soup.select(".job_request span")[2].string.strip('/').strip()
+            edu = soup.select(".job_request span")[3].string.strip('/').strip()
+            work_time = soup.select(".job_request span")[4].string.strip('/').strip()
+            advantage = soup.select_one(".job-advantage p").string
+            job_desc = soup.select_one(".job_bt").text
+            addr = ''.join(soup.select_one(".work_addr").text.split()[:-1])
+
+            company = soup.select_one(".job_company h2").text.split()[0]
+            comp_field = soup.select(".c_feature li")[0].text.split()
+            progress = soup.select(".c_feature li")[1].text.split()[0]
+            scale = soup.select(".c_feature li")[2].text.split()[0]
+            comp_url = soup.select(".c_feature li")[3].text.split()[0]
+
+            job_data = dict(
+                job_name=job_name,
+                depart_name=depart_name,
+                city=city,
+                experience=experience,
+                edu=edu,
+                work_time=work_time,
+                advantage=advantage,
+                job_desc=job_desc,
+                addr=addr,
+                company=company,
+                comp_field=comp_field,
+                progress=progress,
+                scale=scale,
+                comp_url=comp_url,
+            )
+            return job_data
+        except Exception as e:
+            print('解析规则有变化 %s' % e)
+            return None
+    else:
+        return None
+
+def parse_company(html):
+    # to be done
+    pass
+
 def save_to_mongo(data):
     if data:
-        for d in data:
-            job.insert(d)
-            print('正在保存 %s 至mongodb' % d)
+        job.insert(data)
+        print('正在保存 %s 至mongodb' % data)
     else:
         return None
 
 def main():
-    # 将起始url放入待爬队列
-    un_crwaled_urls.add(start_url)
-
     print('放出爬虫')
-
     # 对url进行判断，分别爬取
     while un_crwaled_urls:
         time.sleep(15)
@@ -121,4 +160,5 @@ def main():
             crawl(url)
 
 if __name__ == '__main__':
+    un_crwaled_urls.add(start_url)
     main()
