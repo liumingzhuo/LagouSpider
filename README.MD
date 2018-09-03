@@ -8,13 +8,7 @@
 
 本仓库包含两个爬虫，[小爬虫](https://github.com/huangke19/LagouSpider/blob/master/lagou_index_page.py)只爬取成都地区的工作职位，可以指定职位名字和要爬的页数，[大爬虫](https://github.com/huangke19/LagouSpider/blob/master/lagou_whole_site.py)是爬取拉勾整站的爬虫，正在编写中...
 
-
-
-![lagou](https://github.com/huangke19/LagouSpider/raw/master/lagou.jpg)
-
-
-
-![line](https://github.com/huangke19/LagouSpider/raw/master/lines/l4.png)
+![line](https://github.com/huangke19/LagouSpider/raw/master/lines/l3.png)
 
 ## 小爬虫
 
@@ -62,7 +56,7 @@
 
 
 
-![line](https://github.com/huangke19/LagouSpider/raw/master/lines/l4.png)
+![line](https://github.com/huangke19/LagouSpider/raw/master/lines/l3.png)
 
 # 整站版
 
