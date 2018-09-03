@@ -50,6 +50,7 @@ def crawl(url):
                 else:
                     continue
         else:
+            redis_conn.sadd('un_crwaled_urls', url)
             print('crawl爬虫出错 %s, status code %s' % (url, r.status_code))
     except Exception as e:
         print(e)
@@ -70,7 +71,7 @@ def crawl_position(url):
             save_to_mongo(data)
         else:
             print('crawl position %s failed, status code %s' % (url, r.status_code))
-            redis_conn.sadd('failed_position', url)
+            redis_conn.sadd('un_crwaled_urls', url)
     except Exception as e:
         print(e)
         return
@@ -195,7 +196,7 @@ def main():
 
     # 对url进行判断，分别爬取
     while redis_conn.scard('un_crwaled_urls') > 0:
-        time.sleep(0.5)
+        time.sleep(1)
         url = redis_conn.spop('un_crwaled_urls').decode('utf-8')
         if is_postion_url(url):
             crawl_position(url)
