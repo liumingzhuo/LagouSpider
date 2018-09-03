@@ -52,7 +52,7 @@
 
 ![line](https://github.com/huangke19/LagouSpider/raw/master/lines/bird.jpg)
 
-## 整站版
+## 整站爬虫
 
 
 
