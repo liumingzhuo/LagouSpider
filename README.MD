@@ -26,12 +26,12 @@
 
 #### Charles抓包分析
 
-###### ajax url：
+#### ajax url：
 
 - https://www.lagou.com/jobs/positionAjax.json?city=%E6%88%90%E9%83%BD&needAddtionalResult=false
 
 
-###### Form Data:
+#### Form Data:
 
 - first:  true       是否是首页
 
@@ -57,6 +57,10 @@
 
 
 
+
+
+
+![](https://github.com/huangke19/LagouSpider/raw/master/line.png)
 
 # 整站版
 
