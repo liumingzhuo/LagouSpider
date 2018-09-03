@@ -1,16 +1,25 @@
-import re
-import threading
-import time
-from queue import Queue
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
+import re
+import time
+
+import redis
 import requests
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 
-conn = MongoClient('127.0.0.1', 27017)
-db = conn.lagou
-job = db.lgjob
-comp = db.lgcomp
+HOST = '127.0.0.1'
+PORT = 6379
+DELAY_TIME = 0.5
+
+redis_pool = redis.ConnectionPool(host=HOST, port=PORT, max_connections=50)
+redis_conn = redis.Redis(connection_pool=redis_pool)
+
+mongo_conn = MongoClient('127.0.0.1', 27017)
+db = mongo_conn.lagou
+job_curse = db.lgjob
+comp_curse = db.lgcomp
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -19,23 +28,17 @@ headers = {
     'Cookie':     '_ga=GA1.2.1176219052.1525516654; user_trace_token=20180505183734-522d0969-5050-11e8-8032-5254005c3644; LGUID=20180505183734-522d0d7e-5050-11e8-8032-5254005c3644; index_location_city=%E6%88%90%E9%83%BD; showExpriedIndex=1; showExpriedCompanyHome=1; showExpriedMyPublish=1; _gid=GA1.2.1609482079.1535252885; JSESSIONID=ABAAABAAAGFABEFAF1B82E55AD78E727FBE8F9A524F11DC; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535252885,1535388327,1535567308,1535581083; X_HTTP_TOKEN=0a538ca6731db75799ffed14888c0323; LG_LOGIN_USER_ID=1e8c26fb6976688aebb8f4404658cbe533c7012a4bb16eae; _putrc=68BFC909BD7605C8; login=true; unick=%E9%BB%84%E7%A7%91; hasDeliver=138; gate_login_token=9ceb36e4bc23b9210272f2e4722a69b28adc98a79698db16; LGSID=20180831132504-3714cdf5-acde-11e8-be60-525400f775ce; TG-TRACK-CODE=jobs_again; _gat=1; SEARCH_ID=2fa0ee6acb5b4235b444caff55887def; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535697322; LGRID=20180831143522-09678973-ace8-11e8-be67-525400f775ce'
 }
 
-start_url = 'https://www.lagou.com/'
-crawled_urls = set()
-un_crwaled_urls = set()
-failed_company = set()
-failed_position = set()
-
 def crawl(url):
     print('正在爬通用信息 %s' % url)
     try:
         r = requests.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
-            crawled_urls.add(url)
+            redis_conn.sadd('crawled_urls', url)
             html = r.text
             urls = parse_urls(html)
             for url in urls:
-                if url not in crawled_urls:
-                    un_crwaled_urls.add(url)
+                if not redis_conn.sismember(url, 'crawled_urls'):
+                    redis_conn.sadd('un_crwaled_urls', url)
                 else:
                     continue
         else:
@@ -49,12 +52,13 @@ def crawl_position(url):
     try:
         r = requests.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
-            crawled_urls.add(url)
+            redis_conn.sadd('crawled_urls', url)
             html = r.text
             data = parse_position(html)
             save_to_mongo(data)
         else:
             print('crawl position %s failed, status code %s' % (url, r.status_code))
+            redis_conn.sadd('failed_position', url)
     except Exception as e:
         print(e)
         return
@@ -64,7 +68,7 @@ def crawl_company(url):
     try:
         r = requests.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
-            crawled_urls.add(url)
+            redis_conn.sadd('crawled_urls', url)
             pass
             # infos = parse_company(html)
         else:
@@ -141,7 +145,7 @@ def parse_company(html):
 
 def save_to_mongo(data):
     if data:
-        job.insert(data)
+        job_curse.insert(data)
         print('正在保存 %s 至mongodb' % data)
     else:
         return None
@@ -149,9 +153,9 @@ def save_to_mongo(data):
 def main():
     print('放出爬虫')
     # 对url进行判断，分别爬取
-    while un_crwaled_urls:
+    while redis_conn.scard('un_crwaled_urls') > 0:
         time.sleep(15)
-        url = un_crwaled_urls.pop()
+        url = redis_conn.spop('un_crwaled_urls').decode('utf-8')
         if is_postion_url(url):
             crawl_position(url)
         elif is_company_url(url):
@@ -160,5 +164,6 @@ def main():
             crawl(url)
 
 if __name__ == '__main__':
-    un_crwaled_urls.add(start_url)
+    start_url = 'https://www.lagou.com/'
+    redis_conn.sadd('un_crwaled_urls', start_url)
     main()
