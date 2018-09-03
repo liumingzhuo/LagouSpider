@@ -1,44 +1,43 @@
-# 拉勾爬虫
+# *拉勾爬虫*
+
+> "What I cannot create, I do not understand."
+>
+> -- Richard Feynman
 
 
 
-- ### 成都版
-
-  爬取成都地区的Python工作职位
-
-- ### 全国版
-
-  抓取整站数据
+本仓库包含两个爬虫，[小爬虫](https://github.com/huangke19/LagouSpider/blob/master/lagou_index_page.py)只爬取成都地区的工作职位，可以指定职位名字和要爬的页数，[大爬虫](https://github.com/huangke19/LagouSpider/blob/master/lagou_whole_site.py)是爬取拉勾整站的爬虫，正在编写中...
 
 
 
-
-
-# 成都Python版
-
-
-
-## 网页结构分析
-
-1. 分页式
-2. 网页源代码里没有信息，是Ajax加载的
+![](https://ss0.bdstatic.com/-0U0bnSm1A5BphGlnYG/tam-ogel/ec0a501cf98b5ae772c9602786bfd6c8_259_194.jpg)
 
 
 
-## Charles抓包分析
+## 小爬虫
 
-#### ajax url：
 
-https://www.lagou.com/jobs/positionAjax.json?city=%E6%88%90%E9%83%BD&needAddtionalResult=false
+#### 网页结构分析
 
-#### Form Data:
+- 翻页式
+- 信息是Ajax加载的
 
-first:  true       是否是首页
 
-pn:	1		页数
 
-kd: Python	搜索的关键字
+#### Charles抓包分析
 
+###### ajax url：
+
+- https://www.lagou.com/jobs/positionAjax.json?city=%E6%88%90%E9%83%BD&needAddtionalResult=false
+
+
+###### Form Data:
+
+- first:  true       是否是首页
+
+- pn:	1		页数
+
+- kd: Python	搜索的关键字
 
 
 可见只需要一个循环遍历所有页，带上pn和kd参数即可，爬取的时候记得关Charles
@@ -71,37 +70,17 @@ t.join()
 
 
 
-## 拉勾的反爬措施和解决
+#### 拉勾的反爬措施和解决
 
-1. 无法直接访问ajax url
-
-   > 带上Referer
-
-2. 短时间访问过多
-
-   > 换 cookie 
-
-3. 多线程一开启就卡住，很久才完成
-
-   > 使用pycharm的cprofile工具进行分析，发现96.6%的时间花在了<method 'acquire' of _thread.lock objects> 上,  喵？
-
-4. 被限制IP频率,一个IP一分钟内只能连续请求5次，多了就封
-
-   > 把频率降到一分钟5次以下, sleep(15) 即可以正常抓取了
-
-5. 为什么浏览器正常访问就可以超过5次呢？
-
-   > 喵？
-
-6. 正常访问和换代理和降速度也不行了，换IP也不行了？
-
-   > 策略没有问题，是代理IP可用性差，再换一个
-
-7. 多线程和延迟矛盾
-
-   > 多取一些IP，每个线程分别取代理IP，反正保证每个IP使用频率不超过警戒线
+|         反爬         |  解决方案   |
+| :------------------: | :---------: |
+| 直接访问ajax url 403 | 带上Referer |
+| 限制IP频率（5/min）  |  降速+切IP  |
+|       MaxRetry       | 刷新Cookie  |
 
 
+
+疑问：为什么浏览器正常访问就可以超过5次？喵？
 
 按照上述的策略就可以顺利的爬取拉勾网的数据了，为了提高速度，多弄点IP吧
 
@@ -109,13 +88,13 @@ t.join()
 
 
 
-# 整站版
+## 整站版
 
 
 
-## 思路
+#### 思路
 
-#### 主思路：从首页出发，递归抓取所有带lagou字符串的新url，放入待爬队列
+主思路：从首页出发，递归抓取所有带lagou字符串的新url，放入待爬队列
 
 #### 具体步骤：
 
@@ -130,15 +109,16 @@ t.join()
 
 
 
-## 使用Redis进行去重和保存url队列
+#### 使用Redis进行去重和保存url队列
 
 通过Redis的集合进行去重，同时避免了爬虫出现异常状况又重头开始
 
 
 
-## 拆分函数
+#### 拆分函数
 
-将各个功能拆分开来，使爬虫结构清晰，同时出了问题便于定位和调试
+- 将各个功能拆分开来，使爬虫结构清晰，同时出了问题便于定位和调试
 
-每个函数只做一件事，也方便进行单元测试
+- 每个函数只做一件事，也方便进行单元测试
+
 
