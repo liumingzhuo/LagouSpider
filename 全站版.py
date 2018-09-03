@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+''' 拉勾网全站爬虫 '''
+
 import re
 import time
 
@@ -29,6 +31,9 @@ headers = {
 }
 
 def crawl(url):
+    '''
+    爬取新的带有lagou标签的url
+    '''
     print('正在爬通用信息 %s' % url)
     try:
         r = requests.get(url, headers=headers, timeout=10)
@@ -48,6 +53,9 @@ def crawl(url):
         return
 
 def crawl_position(url):
+    '''
+    爬取职位信息
+    '''
     print('正在爬职位信息 %s' % url)
     try:
         r = requests.get(url, headers=headers, timeout=10)
@@ -78,6 +86,9 @@ def crawl_company(url):
         return
 
 def parse_urls(url):
+    '''
+    解析所有带有lagou标签的url
+    '''
     try:
         url_pattern = re.compile('href="(https://.*?lagou.*?)"')
         urls = re.findall(url_pattern, url)
@@ -87,16 +98,25 @@ def parse_urls(url):
         return None
 
 def is_postion_url(url):
+    '''
+    判断url是不是职位页面url
+    '''
     job_pattern = re.compile('https://www.lagou.com/jobs/\d+?.html')
     found = re.search(job_pattern, url)
     return bool(found)
 
 def is_company_url(url):
+    '''
+    判断url是不是公司页面url
+    '''
     cmp_pattern = re.compile('https://www.lagou.com/gongsi/\d+?.html')
     found = re.search(cmp_pattern, url)
     return bool(found)
 
 def parse_position(html):
+    '''
+    使用bs提取职位页面所有需要的信息
+    '''
     if html:
         try:
             soup = BeautifulSoup(html, 'lxml')
@@ -144,6 +164,9 @@ def parse_company(html):
     pass
 
 def save_to_mongo(data):
+    '''
+    将提取出的信息保存到mongodb
+    '''
     if data:
         job_curse.insert(data)
         print('正在保存 %s 至mongodb' % data)
@@ -151,7 +174,9 @@ def save_to_mongo(data):
         return None
 
 def main():
-    print('放出爬虫')
+    ''' 主函数 '''
+    print('去吧！皮卡丘')
+
     # 对url进行判断，分别爬取
     while redis_conn.scard('un_crwaled_urls') > 0:
         time.sleep(15)
