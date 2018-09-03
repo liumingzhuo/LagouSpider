@@ -20,8 +20,8 @@ redis_conn = redis.Redis(connection_pool=redis_pool)
 
 mongo_conn = MongoClient('127.0.0.1', 27017)
 db = mongo_conn.lagou
-job_curse = db.lgjob
-comp_curse = db.lgcomp
+job_curse = db.lagou_job
+comp_curse = db.lagou_comp
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -190,7 +190,7 @@ def main():
 
     # 对url进行判断，分别爬取
     while redis_conn.scard('un_crwaled_urls') > 0:
-        time.sleep(15)
+        time.sleep(2)
         url = redis_conn.spop('un_crwaled_urls').decode('utf-8')
         if is_postion_url(url):
             crawl_position(url)
