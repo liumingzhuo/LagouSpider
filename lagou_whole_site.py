@@ -4,6 +4,7 @@
 ''' 拉勾网全站爬虫 '''
 import multiprocessing
 import re
+import threading
 import time
 from multiprocessing.pool import Pool
 
@@ -204,11 +205,20 @@ def main():
             crawl(url)
 
 if __name__ == '__main__':
+    t1 = time.time()
+    for i in range(30):
+        t = threading.Thread(target=main, args=())
+        t.start()
+    t.join()
 
-    cores = multiprocessing.cpu_count()
-    pool = Pool(processes=cores)
+    t2 = time.time()
 
-    for i in range(cores):
-        pool.apply_async(main, args=())  # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
-    pool.close()
-    pool.join()
+    print("本次爬取用时%s秒" % (t2 - t1))
+
+    # cores = multiprocessing.cpu_count()
+    # pool = Pool(processes=cores)
+    #
+    # for i in range(cores):
+    #     pool.apply_async(main, args=())  # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
+    # pool.close()
+    # pool.join()
