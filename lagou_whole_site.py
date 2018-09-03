@@ -38,6 +38,7 @@ def crawl(url):
     try:
         r = requests.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
+            redis_conn.sadd('crawled_common', url)
             redis_conn.sadd('crawled_urls', url)
             html = r.text
             urls = parse_urls(html)
@@ -60,6 +61,7 @@ def crawl_position(url):
     try:
         r = requests.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
+            redis_conn.sadd('crawled_position', url)
             redis_conn.sadd('crawled_urls', url)
             html = r.text
             data = parse_position(html)
@@ -73,6 +75,7 @@ def crawl_position(url):
 
 def crawl_company(url):
     print('正在爬公司信息 %s' % url)
+    redis_conn.sadd('crawled_company', url)
     redis_conn.sadd('crawled_urls', url)
     return None
 
@@ -190,7 +193,7 @@ def main():
 
     # 对url进行判断，分别爬取
     while redis_conn.scard('un_crwaled_urls') > 0:
-        time.sleep(2)
+        time.sleep(0.5)
         url = redis_conn.spop('un_crwaled_urls').decode('utf-8')
         if is_postion_url(url):
             crawl_position(url)
