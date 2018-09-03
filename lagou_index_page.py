@@ -8,7 +8,7 @@ from pymongo import MongoClient
 conn = MongoClient('127.0.0.1', 27017)
 db = conn.lagou
 
-proxy = {"https": 'https://%s' % input('代理ip: ')}
+# proxy = {"https": 'https://%s' % input('代理ip: ')}
 
 def get_json(keyword, page):
     data = {
@@ -23,8 +23,9 @@ def get_json(keyword, page):
         'Referer':    'https://www.lagou.com/jobs/list_{}?city=%E6%88%90%E9%83%BD&cl=false&fromSearch=true&labe'
                       'lWords=&suginput='.format(keyword)}
     try:
-        r = requests.post(url, headers=headers, proxies=proxy, data=data)
-        print(r.status_code)
+        # r = requests.post(url, headers=headers, proxies=proxy, data=data)
+        r = requests.post(url, headers=headers, data=data)
+        sys.stdout.write(r.status_code)
         print(r.json())
         return r.json()
     except Exception as e:
