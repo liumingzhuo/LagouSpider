@@ -10,7 +10,7 @@
 
 
 
-![](https://ss0.bdstatic.com/-0U0bnSm1A5BphGlnYG/tam-ogel/ec0a501cf98b5ae772c9602786bfd6c8_259_194.jpg)
+![lagou](https://github.com/huangke19/LagouSpider/raw/master/lagou.jpg)
 
 
 
@@ -41,16 +41,6 @@
 
 
 可见只需要一个循环遍历所有页，带上pn和kd参数即可，爬取的时候记得关Charles
-
-
-
-#### 
-
-
-
-
-
-
 
 
 
