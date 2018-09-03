@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 ''' 拉勾网全站爬虫 '''
-
+import multiprocessing
 import re
 import time
+from multiprocessing.pool import Pool
 
 import redis
 import requests
@@ -18,7 +19,7 @@ DELAY_TIME = 0.5
 redis_pool = redis.ConnectionPool(host=HOST, port=PORT, max_connections=50)
 redis_conn = redis.Redis(connection_pool=redis_pool)
 
-mongo_conn = MongoClient('127.0.0.1', 27017)
+mongo_conn = MongoClient('127.0.0.1', 27017, connect=False)
 db = mongo_conn.lagou
 job_curse = db.lagou_job
 comp_curse = db.lagou_comp
@@ -203,4 +204,11 @@ def main():
             crawl(url)
 
 if __name__ == '__main__':
-    main()
+
+    cores = multiprocessing.cpu_count()
+    pool = Pool(processes=cores)
+
+    for i in range(cores):
+        pool.apply_async(main, args=())  # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
+    pool.close()
+    pool.join()
