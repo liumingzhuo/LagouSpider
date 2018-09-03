@@ -44,27 +44,11 @@
 
 
 
-#### 开启多线程爬取
+#### 
 
-```python
-threads = []
-for i in range(1, pages + 1):
-    t = threading.Thread(target=main, args=(keyword, i))
-    threads.append(t)
 
-for t in threads:
-    t.start()
 
-for t in threads:
-    t.join()
-```
 
-```python
-for i in range(1, pages + 1):
-    t = threading.Thread(target=main, args=(keyword, i))
-    t.start()
-t.join()
-```
 
 
 
@@ -78,23 +62,19 @@ t.join()
 | 限制IP频率（5/min）  |  降速+切IP  |
 |       MaxRetry       | 刷新Cookie  |
 
-
-
-疑问：为什么浏览器正常访问就可以超过5次？喵？
-
 按照上述的策略就可以顺利的爬取拉勾网的数据了，为了提高速度，多弄点IP吧
 
 
 
 
 
-## 整站版
+# 整站版
 
 
 
-#### 思路
+## 思路
 
-主思路：从首页出发，递归抓取所有带lagou字符串的新url，放入待爬队列
+#### 主思路：从首页出发，递归抓取所有带lagou字符串的新url，放入待爬队列
 
 #### 具体步骤：
 
@@ -109,16 +89,15 @@ t.join()
 
 
 
-#### 使用Redis进行去重和保存url队列
+## 使用Redis进行去重和保存url队列
 
 通过Redis的集合进行去重，同时避免了爬虫出现异常状况又重头开始
 
 
 
-#### 拆分函数
+## 拆分函数
 
-- 将各个功能拆分开来，使爬虫结构清晰，同时出了问题便于定位和调试
+将各个功能拆分开来，使爬虫结构清晰，同时出了问题便于定位和调试
 
-- 每个函数只做一件事，也方便进行单元测试
-
+每个函数只做一件事，也方便进行单元测试
 
