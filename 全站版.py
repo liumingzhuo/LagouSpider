@@ -177,6 +177,12 @@ def main():
     ''' 主函数 '''
     print('去吧！皮卡丘')
 
+    if redis_conn.scard('un_crwaled_urls') > 0:
+        start_url = redis_conn.spop('un_crwaled_urls').decode('utf-8')
+    else:
+        start_url = 'https://www.lagou.com/'
+    redis_conn.sadd('un_crwaled_urls', start_url)
+
     # 对url进行判断，分别爬取
     while redis_conn.scard('un_crwaled_urls') > 0:
         time.sleep(15)
@@ -189,6 +195,4 @@ def main():
             crawl(url)
 
 if __name__ == '__main__':
-    start_url = 'https://www.lagou.com/'
-    redis_conn.sadd('un_crwaled_urls', start_url)
     main()
