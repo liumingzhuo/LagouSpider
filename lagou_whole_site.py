@@ -73,17 +73,21 @@ def crawl_position(url):
 
 def crawl_company(url):
     print('正在爬公司信息 %s' % url)
-    try:
-        r = requests.get(url, headers=headers, timeout=10)
-        if r.status_code == 200:
-            redis_conn.sadd('crawled_urls', url)
-            pass
-            # infos = parse_company(html)
-        else:
-            print('crawl company %s failed, status code %s' % (url, r.status_code))
-    except Exception as e:
-        print(e)
-        return
+    redis_conn.sadd('crawled_urls', url)
+    return None
+
+    # TODO 公司信息先不抓取，后续再说
+    # try:
+    #     r = requests.get(url, headers=headers, timeout=10)
+    #     if r.status_code == 200:
+    #         redis_conn.sadd('crawled_urls', url)
+    #         pass
+    #         # infos = parse_company(html)
+    #     else:
+    #         print('crawl company %s failed, status code %s' % (url, r.status_code))
+    # except Exception as e:
+    #     print(e)
+    #     return
 
 def parse_urls(url):
     '''
