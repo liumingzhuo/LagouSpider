@@ -1,5 +1,7 @@
 # *拉勾爬虫*
 
+![lagou](https://github.com/huangke19/LagouSpider/raw/master/lagou.jpg)
+
 > "What I cannot create, I do not understand."
 >
 > -- Richard Feynman
@@ -10,7 +12,7 @@
 
 
 
-![lagou](https://github.com/huangke19/LagouSpider/raw/master/lagou.jpg)
+
 
 
 
