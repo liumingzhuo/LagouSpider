@@ -87,11 +87,10 @@ Disallow: /*?*
 
 #### 拉勾的反爬措施和解决
 
-|                   反爬                   |     解决方案     |
-| :--------------------------------------: | :--------------: |
-|           直接访问ajax url 403           |   带上Referer    |
-|      无Cookie时限制IP频率（5/min）       | 带上有效的Cookie |
-| port=443 : Max retries exceeded with url |       降速       |
+|             反爬              |     解决方案     |
+| :---------------------------: | :--------------: |
+|     直接访问ajax url 403      |   带上Referer    |
+| 无Cookie时限制IP频率（5/min） | 带上有效的Cookie |
 
 一更：开了30个线程爬了一个小时，终于激活了拉勾的新反爬措施，现在报443错误了，等的就是你！
 
@@ -102,18 +101,6 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 开始解决问题
 
 1. 首先尝试一下回退降速，看一下到底是不是被封IP了
-
-   > 尝试成功，降回4进程模式可以顺利爬取，没有被封IP，既然没有被封IP，那就是多线程触发了单位时间的数量限制了，重多线程去测试抓取频率限制到底是多少。
-
-
-
-
-
-
-
-
-
-
 
 按照上述的策略就可以顺利的爬取拉勾网的数据了，为了提高速度，多弄点IP吧
 
@@ -142,6 +129,8 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 #### 思路
 
 主思路：从首页出发，递归抓取所有带lagou字符串的新url，放入待爬队列
+
+![workflow](https://github.com/huangke19/LagouSpider/raw/master/workflow.jpg)
 
 #### 具体步骤：
 
