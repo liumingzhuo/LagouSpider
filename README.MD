@@ -14,7 +14,7 @@
 
 
 
-![line](https://github.com/huangke19/LagouSpider/raw/master/lines/01.JPG)
+![line](https://github.com/huangke19/LagouSpider/raw/master/lines/line.png)
 
 ## 小爬虫
 
@@ -62,7 +62,7 @@
 
 
 
-![line](https://github.com/huangke19/LagouSpider/raw/master/lines/01.JPG)
+![line](https://github.com/huangke19/LagouSpider/raw/master/lines/line.png)
 
 # 整站版
 
