@@ -149,4 +149,28 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 #### 改进爬虫
 
 - 添加重试次数
-- 爬取的url分类保存
+- 爬取的url分类保存ip
+
+
+
+## 改造成分布式
+
+
+
+#### 开启Redis远程连接
+
+配置redis.conf文件，开启远程连接，注释掉bind，将保护模式关闭
+
+如果/usr/local/etc/下没有redis.conf文件，考虑用brew重装mo
+
+```
+# bind 127.0.0.1 
+protected mode no
+```
+
+开启mongodb远程连接
+
+```
+bindip: 本机IP，slaveIP
+```
+
