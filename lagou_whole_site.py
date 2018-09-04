@@ -178,8 +178,12 @@ def save_to_mongo(data):
     将提取出的信息保存到mongodb
     '''
     if data:
-        job_curse.insert(data)
-        print('正在保存 %s 至mongodb' % data)
+        try:
+            job_curse.insert(data)
+            print('正在保存 %s 至mongodb' % data)
+        except Exception as e:
+            print(e)
+            return None
     else:
         return None
 
