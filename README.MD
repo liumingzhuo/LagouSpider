@@ -163,6 +163,10 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 ## 改造成分布式
 
+主从式分布爬虫：使用master节点抓取职位url并入列，使用slave节点取队列中取url进行抓取
+
+对等式分布爬虫： 使用上面的全站爬虫分别在不同的机器上运行，设置好共用redis和mongodb即可
+
 
 
 #### 开启Redis远程连接
