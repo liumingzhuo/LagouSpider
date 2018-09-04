@@ -153,6 +153,14 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 
 
+
+
+![dd](https://github.com/huangke19/LagouSpider/raw/master/lines/bird.jpg)
+
+
+
+
+
 ## 改造成分布式
 
 
