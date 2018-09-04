@@ -14,33 +14,6 @@
 
 第一步，观察一下拉勾网的robots.txt，看一下有没有什么可用的信息
 
-```python
-https://www.lagou.com/robots.txt
-
-User-agent: Jobuispider
-Disallow:  /
-
-User-agent: *
-Disallow: /resume/
-Disallow: /nearBy/
-Disallow: /ologin/
-Disallow: /jobs/list_*
-Disallow: /one.lagou.com
-Disallow: /ns3.lagou.com
-Disallow: /hr.lagou.com
-Disallow: /two.lagou.com
-Disallow: /t/temp1/
-Disallow: /center/preview.html
-Disallow: /center/previewApp.html
-Disallow: /*?utm_source=*
-Allow: /gongsi/interviewExperiences.html?companyId=*
-Disallow: /*?*
-```
-
-这… 基本就没有什么是允许的了，只有disobey了
-
-
-
 第二步，查看的拉勾的sitemap，没找到
 
 第三步，估算拉勾的总大小，大约68万条数据
