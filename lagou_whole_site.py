@@ -32,7 +32,7 @@ headers = {
     'Cookie':     '_ga=GA1.2.1176219052.1525516654; user_trace_token=20180505183734-522d0969-5050-11e8-8032-5254005c3644; LGUID=20180505183734-522d0d7e-5050-11e8-8032-5254005c3644; index_location_city=%E6%88%90%E9%83%BD; showExpriedIndex=1; showExpriedCompanyHome=1; showExpriedMyPublish=1; _gid=GA1.2.1609482079.1535252885; JSESSIONID=ABAAABAAAGFABEFAF1B82E55AD78E727FBE8F9A524F11DC; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535252885,1535388327,1535567308,1535581083; X_HTTP_TOKEN=0a538ca6731db75799ffed14888c0323; LG_LOGIN_USER_ID=1e8c26fb6976688aebb8f4404658cbe533c7012a4bb16eae; _putrc=68BFC909BD7605C8; login=true; unick=%E9%BB%84%E7%A7%91; hasDeliver=138; gate_login_token=9ceb36e4bc23b9210272f2e4722a69b28adc98a79698db16; LGSID=20180831132504-3714cdf5-acde-11e8-be60-525400f775ce; TG-TRACK-CODE=jobs_again; _gat=1; SEARCH_ID=2fa0ee6acb5b4235b444caff55887def; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535697322; LGRID=20180831143522-09678973-ace8-11e8-be67-525400f775ce'
 }
 
-def crawl(url, retry_num=2, charset='utf-8'):
+def crawler_links(url, retry_num=2, charset='utf-8'):
     '''
     爬取新的带有lagou标签的url
     '''
@@ -64,7 +64,7 @@ def crawl(url, retry_num=2, charset='utf-8'):
         print(e)
         if retry_num > 0:
             if hasattr(e, 'code') and 500 <= e.code < 600:
-                return crawl(url, retry_num - 1)
+                return crawler_links(url, retry_num - 1)
         return
 
 def crawl_position(url, retry_num=3):
@@ -224,7 +224,7 @@ def main():
         elif is_company_url(url):
             crawl_company(url)
         else:
-            crawl(url)
+            crawler_links(url)
 
 if __name__ == '__main__':
     t1 = time.time()
