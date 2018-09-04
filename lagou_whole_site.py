@@ -44,9 +44,9 @@ def crawl(url):
             redis_conn.sadd('crawled_urls', url)
             html = r.text
             urls = parse_urls(html)
-            for url in urls:
-                if not redis_conn.sismember('crawled_urls', url):
-                    redis_conn.sadd('un_crwaled_urls', url)
+            for _url in urls:
+                if not redis_conn.sismember('crawled_urls', _url):
+                    redis_conn.sadd('un_crwaled_urls', _url)
                 else:
                     continue
         elif r.status_code == 301 or r.status_code == 404:
