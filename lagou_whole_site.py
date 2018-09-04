@@ -18,7 +18,7 @@ HOST = '127.0.0.1'
 PORT = 6379
 DELAY_TIME = 0.5
 
-redis_conn = redis.Redis(host=HOST, port=6379, db=1)
+redis_conn = redis.Redis(host=HOST, port=6379, db=0)
 
 mongo_conn = MongoClient(HOST, 27017, connect=False)
 db = mongo_conn.lagou
@@ -53,13 +53,13 @@ def crawler_links(url, retry_num=2, charset='utf-8'):
             urls = parse_urls(html)
             for _url in urls:
                 if not redis_conn.sismember('crawled_urls', _url):
-                    redis_conn.sadd('un_crwaled_urls', _url)
+                    redis_conn.sadd('un_crawled_urls', _url)
                 else:
                     continue
         elif r.status_code == 301 or r.status_code == 404:
             redis_conn.sadd('bad_urls', url)
         else:
-            redis_conn.sadd('un_crwaled_urls', url)
+            redis_conn.sadd('un_crawled_urls', url)
             print('crawl爬虫出错 %s, status code %s' % (url, r.status_code))
     except Exception as e:
         print(e)
@@ -87,7 +87,7 @@ def crawl_position(url, retry_num=3):
 
             print('crawl position %s failed, status code %s' % (url, r.status_code))
         else:
-            redis_conn.sadd('un_crwaled_urls', url)
+            redis_conn.sadd('un_crawled_urls', url)
     except Exception as e:
         print(e)
         if retry_num > 0:
@@ -219,16 +219,18 @@ def main():
 
     print('去吧！皮卡丘')
 
-    if redis_conn.scard('un_crwaled_urls') > 0:
-        start_url = redis_conn.spop('un_crwaled_urls').decode('utf-8')
+    lock.acquire()
+    if redis_conn.scard('un_crawled_urls') > 0:
+        start_url = redis_conn.spop('un_crawled_urls').decode('utf-8')
     else:
         start_url = 'https://www.lagou.com/'
-    redis_conn.sadd('un_crwaled_urls', start_url)
+    redis_conn.sadd('un_crawled_urls', start_url)
+    lock.release()
 
     # 对url进行判断，分别爬取
-    while redis_conn.scard('un_crwaled_urls') > 0:
+    while redis_conn.scard('un_crawled_urls') > 0:
         time.sleep(1)
-        url = redis_conn.spop('un_crwaled_urls').decode('utf-8')
+        url = redis_conn.spop('un_crawled_urls').decode('utf-8')
         if is_postion_url(url):
             crawl_position(url)
         elif is_company_url(url):
@@ -239,6 +241,7 @@ def main():
 
 if __name__ == '__main__':
     t1 = time.time()
+    lock = threading.Lock()
     for i in range(60):
         t = threading.Thread(target=main, args=())
         t.start()
