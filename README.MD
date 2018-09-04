@@ -174,3 +174,8 @@ protected mode no
 bindip: 本机IP，slaveIP
 ```
 
+
+
+#### 再一次触发反爬，数据为空
+
+1. 检查cookie是否过期
