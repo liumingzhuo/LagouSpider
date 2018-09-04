@@ -22,8 +22,8 @@ redis_conn = redis.Redis(connection_pool=redis_pool)
 
 mongo_conn = MongoClient('127.0.0.1', 27017, connect=False)
 db = mongo_conn.lagou
-job_curse = db.lagou_job
-comp_curse = db.lagou_comp
+job_curse = db.lagou_jobs
+comp_curse = db.lagou_comps
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -58,11 +58,11 @@ def crawl(url):
         print(e)
         return
 
-def crawl_position(url):
+def crawl_position(url, retry_num=3):
     '''
     爬取职位信息
     '''
-    print('正在爬职位信息 %s' % url)
+    print('正在爬取职位 %s' % url)
     try:
         r = requests.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
@@ -79,7 +79,10 @@ def crawl_position(url):
             redis_conn.sadd('un_crwaled_urls', url)
     except Exception as e:
         print(e)
-        return
+        if retry_num > 0:
+            if hasattr(e, 'code') and 500 <= e.code < 600:
+                return crawl_position(url, retry_num - 1)
+        return None
 
 def crawl_company(url):
     print('正在爬公司信息 %s' % url)
