@@ -31,7 +31,7 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) '
                   'Chrome/68.0.3440.106 Safari/537.36',
     'Accept': 'application/json, text/javascript, */*; q=0.01',
-    'Cookie': '_JSESSIONID=ABAAABAAAGFABEFCE8178836CE129D66902A4037694E69E; _ga=GA1.2.315798882.1536057004; _gid=GA1.2.564034052.1536057004; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1536057005; user_trace_token=20180904182759-32051efb-b02d-11e8-85bf-525400f775ce; LGUID=20180904182759-320521bd-b02d-11e8-85bf-525400f775ce; index_location_city=%E5%85%A8%E5%9B%BD; X_HTTP_TOKEN=c56567765dd9e74a4dcecf36d6aebf19; LG_LOGIN_USER_ID=62014dee7e0768db6652e8d72a25508483f86729554ae4ba; _putrc=68BFC909BD7605C8; login=true; unick=%E9%BB%84%E7%A7%91; showExpriedIndex=1; showExpriedCompanyHome=1; showExpriedMyPublish=1; hasDeliver=138; SEARCH_ID=575835590d42453b9bc2cf0fff35bee6; gate_login_token=d7792e76460db048715dbfc5bca5a6d34a0b523468a72f3d; LGSID=20180904214250-6a618153-b048-11e8-b4e7-5254005c3644; PRE_UTM=; PRE_HOST=; PRE_SITE=; PRE_LAND=https%3A%2F%2Fwww.lagou.com%2F; TG-TRACK-CODE=index_recjob; _gat=1; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1536069970; LGRID=20180904220404-61c396e2-b04b-11e8-85c9-525400f775ce'
+    'Cookie': '_ga=GA1.2.1176219052.1525516654; user_trace_token=20180505183734-522d0969-5050-11e8-8032-5254005c3644; LGUID=20180505183734-522d0d7e-5050-11e8-8032-5254005c3644; index_location_city=%E6%88%90%E9%83%BD; showExpriedIndex=1; showExpriedCompanyHome=1; showExpriedMyPublish=1; _gid=GA1.2.1609482079.1535252885; JSESSIONID=ABAAABAAAGFABEFAF1B82E55AD78E727FBE8F9A524F11DC; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535252885,1535388327,1535567308,1535581083; X_HTTP_TOKEN=0a538ca6731db75799ffed14888c0323; LG_LOGIN_USER_ID=1e8c26fb6976688aebb8f4404658cbe533c7012a4bb16eae; _putrc=68BFC909BD7605C8; login=true; unick=%E9%BB%84%E7%A7%91; hasDeliver=138; gate_login_token=9ceb36e4bc23b9210272f2e4722a69b28adc98a79698db16; LGSID=20180831132504-3714cdf5-acde-11e8-be60-525400f775ce; TG-TRACK-CODE=jobs_again; _gat=1; SEARCH_ID=2fa0ee6acb5b4235b444caff55887def; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535697322; LGRID=20180831143522-09678973-ace8-11e8-be67-525400f775ce'
 }
 
 
@@ -51,7 +51,7 @@ def crawl_position(url, retry_num=3):
 
     if r.status_code == 200:
         html = r.text
-        data = parse_position(html)
+        data = parse_position(url, html)
         save_to_mongo(url, data)
     elif r.status_code == 301 or r.status_code == 404:
         redis_conn.sadd('bad_urls', url)
@@ -61,13 +61,13 @@ def crawl_position(url, retry_num=3):
         redis_conn.sadd('un_crawled_urls', url)
 
 
-def parse_position(html):
+def parse_position(url, html):
     '''
     使用bs提取职位页面所有需要的信息
     '''
     if html:
 
-        parse_checker(html)
+        parse_checker(url, html)
         # anspider_checker(html)
 
         soup = BeautifulSoup(html, 'lxml')
@@ -145,7 +145,7 @@ def main():
 if __name__ == '__main__':
     t1 = time.time()
     lock = threading.Lock()
-    for i in range(1):
+    for i in range(10):
         t = threading.Thread(target=main, args=())
         t.start()
     t.join()
