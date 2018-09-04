@@ -13,6 +13,8 @@ import requests
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 
+from check import parse_checker
+
 HOST = '192.168.31.214'
 PORT = 6379
 DELAY_TIME = 0.5
@@ -40,18 +42,6 @@ def crawl_position(url, retry_num=3):
     print('正在爬取职位 %s' % url)
     try:
         r = requests.get(url, headers=headers, timeout=10)
-        if r.status_code == 200:
-            redis_conn.sadd('crawled_position', url)
-            redis_conn.sadd('crawled_urls', url)
-            html = r.text
-            data = parse_position(html)
-            save_to_mongo(data)
-        elif r.status_code == 301 or r.status_code == 404:
-            redis_conn.sadd('bad_urls', url)
-
-            print('crawl position %s failed, status code %s' % (url, r.status_code))
-        else:
-            redis_conn.sadd('un_crawled_urls', url)
     except Exception as e:
         print(e)
         if retry_num > 0:
@@ -59,55 +49,66 @@ def crawl_position(url, retry_num=3):
                 return crawl_position(url, retry_num - 1)
         return None
 
+    if r.status_code == 200:
+        html = r.text
+        data = parse_position(html)
+        save_to_mongo(url, data)
+    elif r.status_code == 301 or r.status_code == 404:
+        redis_conn.sadd('bad_urls', url)
+
+        print('crawl position %s failed, status code %s' % (url, r.status_code))
+    else:
+        redis_conn.sadd('un_crawled_urls', url)
+
 
 def parse_position(html):
     '''
     使用bs提取职位页面所有需要的信息
     '''
     if html:
-        try:
-            soup = BeautifulSoup(html, 'lxml')
-            job_name = soup.select_one(".job-name .name").string
-            depart_name = soup.select_one(".company").string
-            city = soup.select(".job_request span")[1].string.strip('/').strip()
-            experience = soup.select(".job_request span")[2].string.strip('/').strip()
-            edu = soup.select(".job_request span")[3].string.strip('/').strip()
-            work_time = soup.select(".job_request span")[4].string.strip('/').strip()
-            advantage = soup.select_one(".job-advantage p").string
-            job_desc = soup.select_one(".job_bt").text
-            addr = ''.join(soup.select_one(".work_addr").text.split()[:-1])
+        parse_checker(html)  # 检查解析规则是否生效
 
-            company = soup.select_one(".job_company h2").text.split()[0]
-            comp_field = soup.select(".c_feature li")[0].text.split()
-            progress = soup.select(".c_feature li")[1].text.split()[0]
-            scale = soup.select(".c_feature li")[2].text.split()[0]
-            comp_url = soup.select(".c_feature li")[3].text.split()[0]
+        soup = BeautifulSoup(html, 'lxml')
+        job_name = soup.select_one(".job-name .name").string
+        depart_name = soup.select_one(".company").string
+        city = soup.select(".job_request span")[1].string.strip('/').strip()
+        experience = soup.select(".job_request span")[2].string.strip('/').strip()
+        edu = soup.select(".job_request span")[3].string.strip('/').strip()
+        work_time = soup.select(".job_request span")[4].string.strip('/').strip()
+        advantage = soup.select_one(".job-advantage p").string
+        job_desc = soup.select_one(".job_bt").text
+        addr = ''.join(soup.select_one(".work_addr").text.split()[:-1])
 
-            job_data = dict(
-                job_name=job_name,
-                depart_name=depart_name,
-                city=city,
-                experience=experience,
-                edu=edu,
-                work_time=work_time,
-                advantage=advantage,
-                job_desc=job_desc,
-                addr=addr,
-                company=company,
-                comp_field=comp_field,
-                progress=progress,
-                scale=scale,
-                comp_url=comp_url,
-            )
-            return job_data
-        except Exception as e:
-            print('解析规则有变化 %s' % e)
-            return None
+        company = soup.select_one(".job_company h2").text.split()[0]
+        comp_field = soup.select(".c_feature li")[0].text.split()
+        progress = soup.select(".c_feature li")[1].text.split()[0]
+        scale = soup.select(".c_feature li")[2].text.split()[0]
+        comp_url = soup.select(".c_feature li")[3].text.split()[0]
+
+        job_data = dict(
+            job_name=job_name,
+            depart_name=depart_name,
+            city=city,
+            experience=experience,
+            edu=edu,
+            work_time=work_time,
+            advantage=advantage,
+            job_desc=job_desc,
+            addr=addr,
+            company=company,
+            comp_field=comp_field,
+            progress=progress,
+            scale=scale,
+            comp_url=comp_url,
+        )
+        return job_data
+
+
     else:
         return None
 
 
-def save_to_mongo(data):
+def save_to_mongo(url, data):
     '''
     将提取出的信息保存到mongodb
     '''
@@ -115,6 +116,8 @@ def save_to_mongo(data):
         try:
             job_curse.insert(data)
             print('正在保存 %s 至mongodb' % data)
+            redis_conn.sadd('crawled_position', url)
+            redis_conn.sadd('crawled_urls', url)
         except Exception as e:
             print(e)
             return None
@@ -146,7 +149,7 @@ def main():
 if __name__ == '__main__':
     t1 = time.time()
     lock = threading.Lock()
-    for i in range(20):
+    for i in range(1):
         t = threading.Thread(target=main, args=())
         t.start()
     t.join()
