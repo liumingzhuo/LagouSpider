@@ -13,14 +13,14 @@ import requests
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 
+# HOST = '192.168.31.214'
 HOST = '127.0.0.1'
 PORT = 6379
 DELAY_TIME = 0.5
 
-redis_pool = redis.ConnectionPool(host=HOST, port=PORT, max_connections=50)
-redis_conn = redis.Redis(connection_pool=redis_pool)
+redis_conn = redis.Redis(host=HOST, port=6379, db=1)
 
-mongo_conn = MongoClient('127.0.0.1', 27017, connect=False)
+mongo_conn = MongoClient(HOST, 27017, connect=False)
 db = mongo_conn.lagou
 job_curse = db.lagou_jobs
 comp_curse = db.lagou_comps
@@ -28,9 +28,10 @@ comp_curse = db.lagou_comps
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) '
                   'Chrome/68.0.3440.106 Safari/537.36',
-    'Accept':     'application/json, text/javascript, */*; q=0.01',
-    'Cookie':     '_ga=GA1.2.1176219052.1525516654; user_trace_token=20180505183734-522d0969-5050-11e8-8032-5254005c3644; LGUID=20180505183734-522d0d7e-5050-11e8-8032-5254005c3644; index_location_city=%E6%88%90%E9%83%BD; showExpriedIndex=1; showExpriedCompanyHome=1; showExpriedMyPublish=1; _gid=GA1.2.1609482079.1535252885; JSESSIONID=ABAAABAAAGFABEFAF1B82E55AD78E727FBE8F9A524F11DC; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535252885,1535388327,1535567308,1535581083; X_HTTP_TOKEN=0a538ca6731db75799ffed14888c0323; LG_LOGIN_USER_ID=1e8c26fb6976688aebb8f4404658cbe533c7012a4bb16eae; _putrc=68BFC909BD7605C8; login=true; unick=%E9%BB%84%E7%A7%91; hasDeliver=138; gate_login_token=9ceb36e4bc23b9210272f2e4722a69b28adc98a79698db16; LGSID=20180831132504-3714cdf5-acde-11e8-be60-525400f775ce; TG-TRACK-CODE=jobs_again; _gat=1; SEARCH_ID=2fa0ee6acb5b4235b444caff55887def; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535697322; LGRID=20180831143522-09678973-ace8-11e8-be67-525400f775ce'
+    'Accept': 'application/json, text/javascript, */*; q=0.01',
+    'Cookie': '_ga=GA1.2.1176219052.1525516654; user_trace_token=20180505183734-522d0969-5050-11e8-8032-5254005c3644; LGUID=20180505183734-522d0d7e-5050-11e8-8032-5254005c3644; index_location_city=%E6%88%90%E9%83%BD; showExpriedIndex=1; showExpriedCompanyHome=1; showExpriedMyPublish=1; _gid=GA1.2.1609482079.1535252885; JSESSIONID=ABAAABAAAGFABEFAF1B82E55AD78E727FBE8F9A524F11DC; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535252885,1535388327,1535567308,1535581083; X_HTTP_TOKEN=0a538ca6731db75799ffed14888c0323; LG_LOGIN_USER_ID=1e8c26fb6976688aebb8f4404658cbe533c7012a4bb16eae; _putrc=68BFC909BD7605C8; login=true; unick=%E9%BB%84%E7%A7%91; hasDeliver=138; gate_login_token=9ceb36e4bc23b9210272f2e4722a69b28adc98a79698db16; LGSID=20180831132504-3714cdf5-acde-11e8-be60-525400f775ce; TG-TRACK-CODE=jobs_again; _gat=1; SEARCH_ID=2fa0ee6acb5b4235b444caff55887def; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1535697322; LGRID=20180831143522-09678973-ace8-11e8-be67-525400f775ce'
 }
+
 
 def crawler_links(url, retry_num=2, charset='utf-8'):
     '''
@@ -67,6 +68,7 @@ def crawler_links(url, retry_num=2, charset='utf-8'):
                 return crawler_links(url, retry_num - 1)
         return
 
+
 def crawl_position(url, retry_num=3):
     '''
     爬取职位信息
@@ -93,6 +95,7 @@ def crawl_position(url, retry_num=3):
                 return crawl_position(url, retry_num - 1)
         return None
 
+
 def crawl_company(url):
     print('正在爬公司信息 %s' % url)
     redis_conn.sadd('crawled_company', url)
@@ -112,6 +115,7 @@ def crawl_company(url):
     #     print(e)
     #     return
 
+
 def parse_urls(url):
     '''
     解析所有带有lagou标签的url
@@ -124,6 +128,7 @@ def parse_urls(url):
         print(e)
         return None
 
+
 def is_postion_url(url):
     '''
     判断url是不是职位页面url
@@ -132,6 +137,7 @@ def is_postion_url(url):
     found = re.search(job_pattern, url)
     return bool(found)
 
+
 def is_company_url(url):
     '''
     判断url是不是公司页面url
@@ -139,6 +145,7 @@ def is_company_url(url):
     cmp_pattern = re.compile('https://www.lagou.com/gongsi/\d+?.html')
     found = re.search(cmp_pattern, url)
     return bool(found)
+
 
 def parse_position(html):
     '''
@@ -186,9 +193,11 @@ def parse_position(html):
     else:
         return None
 
+
 def parse_company(html):
     # to be done
     pass
+
 
 def save_to_mongo(data):
     '''
@@ -203,6 +212,7 @@ def save_to_mongo(data):
             return None
     else:
         return None
+
 
 def main():
     ''' 主函数 '''
@@ -225,6 +235,7 @@ def main():
             crawl_company(url)
         else:
             crawler_links(url)
+
 
 if __name__ == '__main__':
     t1 = time.time()
