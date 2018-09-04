@@ -8,6 +8,8 @@ def parse_checker(html):
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(html, 'lxml')
 
+    print(html)
+
     assert soup.select_one(".job-name .name").string, 'job_name解析规则发生了变化'
     assert soup.select_one(".company").string, 'depart_name解析规则发生了变化'
     assert soup.select(".job_request span")[1].string.strip('/').strip(), 'city解析规则发生了变化'
@@ -22,3 +24,7 @@ def parse_checker(html):
     assert soup.select(".c_feature li")[1].text.split()[0], 'progress解析规则发生了变化'
     assert soup.select(".c_feature li")[2].text.split()[0], 'scale解析规则发生了变化'
     assert soup.select(".c_feature li")[3].text.split()[0], ' comp_url解析规则发生了变化'
+
+
+def anspider_checker(html):
+    pass
