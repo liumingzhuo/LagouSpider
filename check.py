@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 ''' 检查解析规则是否失效 '''
+from lagou_slave import redis_conn
 
 
-def parse_checker(html):
+def parse_checker(url, html):
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(html, 'lxml')
 
@@ -12,6 +13,7 @@ def parse_checker(html):
         online = soup.select_one(".outline_tag").string
         if online == '（该职位已下线）':
             print('该职位已下线')
+            redis_conn.sadd('crawled_urls', url)
             return
     except AttributeError:
         pass
