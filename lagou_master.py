@@ -91,7 +91,7 @@ def main():
     ''' 主函数 '''
 
     print('去吧！皮卡丘')
-    print('待爬队列长度', redis_conn.scard('un_crawled_urls'))
+    # print('待爬队列长度', redis_conn.scard('un_crawled_urls'))
 
     lock.acquire()
     if redis_conn.scard('un_crawled_urls') > 0:
@@ -104,7 +104,9 @@ def main():
     # 对url进行判断，分别爬取
     while redis_conn.scard('un_crawled_urls') > 0:
         time.sleep(1)
+        lock.acquire()
         url = redis_conn.spop('un_crawled_urls').decode('utf-8')
+        lock.release()
         if is_postion_url(url):
             redis_conn.sadd('position_urls')
         else:
