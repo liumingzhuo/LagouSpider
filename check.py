@@ -8,6 +8,14 @@ def parse_checker(html):
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(html, 'lxml')
 
+    try:
+        online = soup.select_one(".outline_tag").string
+        if online == '（该职位已下线）':
+            print('该职位已下线')
+            return
+    except AttributeError:
+        pass
+
     assert soup.select_one(".job-name .name").string, 'job_name解析规则发生了变化'
     assert soup.select_one(".company").string, 'depart_name解析规则发生了变化'
     assert soup.select(".job_request span")[1].string.strip('/').strip(), 'city解析规则发生了变化'
