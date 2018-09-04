@@ -161,5 +161,5 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 
 
-
+![gif](https://github.com/huangke19/LagouSpider/raw/master/gif.gif)
 
