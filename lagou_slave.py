@@ -51,7 +51,7 @@ def crawl_position(url, retry_num=3):
 
             print('crawl position %s failed, status code %s' % (url, r.status_code))
         else:
-            redis_conn.sadd('un_crwaled_urls', url)
+            redis_conn.sadd('un_crawled_urls', url)
     except Exception as e:
         print(e)
         if retry_num > 0:
@@ -107,8 +107,6 @@ def parse_position(html):
         return None
 
 
-
-
 def save_to_mongo(data):
     '''
     将提取出的信息保存到mongodb
@@ -128,22 +126,26 @@ def main():
     ''' 主函数 '''
 
     print('去吧！皮卡丘')
+    print('待爬队列长度', redis_conn.scard('un_crawled_urls'))
 
-    if redis_conn.scard('un_crwaled_urls') > 0:
-        start_url = redis_conn.spop('un_crwaled_urls').decode('utf-8')
+    lock.acquire()
+    if redis_conn.scard('un_crawled_urls') > 0:
+        start_url = redis_conn.spop('un_crawled_urls').decode('utf-8')
     else:
         start_url = 'https://www.lagou.com/'
-    redis_conn.sadd('un_crwaled_urls', start_url)
+    redis_conn.sadd('un_crawled_urls', start_url)
+    lock.release()
 
     # 对url进行判断，分别爬取
-    while redis_conn.scard('un_crwaled_urls') > 0:
+    while redis_conn.scard('un_crawled_urls') > 0:
         time.sleep(1)
-        url = redis_conn.spop('un_crwaled_urls').decode('utf-8')
+        url = redis_conn.spop('un_crawled_urls').decode('utf-8')
         crawl_position(url)
 
 
 if __name__ == '__main__':
     t1 = time.time()
+    lock = threading.Lock()
     for i in range(20):
         t = threading.Thread(target=main, args=())
         t.start()
@@ -152,4 +154,3 @@ if __name__ == '__main__':
     t2 = time.time()
 
     print("本次爬取用时%s秒" % (t2 - t1))
-

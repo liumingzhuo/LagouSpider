@@ -13,13 +13,12 @@ import requests
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 
-# HOST = '192.168.31.214'
-HOST = '127.0.0.1'
+HOST = '192.168.31.214'
+# HOST = '127.0.0.1'
 PORT = 6379
 DELAY_TIME = 0.5
 
-redis_pool = redis.ConnectionPool(host=HOST, port=PORT, max_connections=50)
-redis_conn = redis.Redis(connection_pool=redis_pool)
+redis_conn = redis.Redis(host=HOST, port=6379, db=0)
 
 mongo_conn = MongoClient(HOST, 27017, connect=False)
 db = mongo_conn.lagou
@@ -48,15 +47,15 @@ def crawler_links(url, retry_num=2, charset='utf-8'):
             for _url in urls:
                 if not redis_conn.sismember('crawled_urls', _url):
                     if is_postion_url(_url):
-                        redis_conn.sadd('position_urls')
+                        redis_conn.sadd('position_urls', _url)
                     else:
-                        redis_conn.sadd('un_crwaled_urls', _url)
+                        redis_conn.sadd('un_crawled_urls', _url)
                 else:
                     continue
         elif r.status_code == 301 or r.status_code == 404:
             redis_conn.sadd('broken_urls', url)
         else:
-            redis_conn.sadd('un_crwaled_urls', url)
+            redis_conn.sadd('un_crawled_urls', url)
             print('crawl爬虫出错 %s, status code %s' % (url, r.status_code))
     except Exception as e:
         print(e)
@@ -92,12 +91,15 @@ def main():
     ''' 主函数 '''
 
     print('去吧！皮卡丘')
+    print('待爬队列长度', redis_conn.scard('un_crawled_urls'))
 
+    lock.acquire()
     if redis_conn.scard('un_crawled_urls') > 0:
         start_url = redis_conn.spop('un_crawled_urls').decode('utf-8')
     else:
         start_url = 'https://www.lagou.com/'
     redis_conn.sadd('un_crawled_urls', start_url)
+    lock.release()
 
     # 对url进行判断，分别爬取
     while redis_conn.scard('un_crawled_urls') > 0:
@@ -111,9 +113,11 @@ def main():
 
 if __name__ == '__main__':
     t1 = time.time()
+    lock = threading.Lock()
     for i in range(60):
         t = threading.Thread(target=main, args=())
         t.start()
+        time.sleep(1)
     t.join()
 
     t2 = time.time()
