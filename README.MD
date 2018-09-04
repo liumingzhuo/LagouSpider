@@ -70,6 +70,7 @@ Disallow: /*?*
 #### ajax url：
 
 - https://www.lagou.com/jobs/positionAjax.json?city=%E6%88%90%E9%83%BD&needAddtionalResult=false
+- url解码后 https://www.lagou.com/jobs/positionAjax.json?city=成都&needAddtionalResult=false
 
 
 #### Form Data:
@@ -101,6 +102,7 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 开始解决问题
 
 1. 首先尝试一下回退降速，看一下到底是不是被封IP了
+2. 问题解决了，没有被封IP，再提速后恢复正常，是服务器临时出了问题？
 
 按照上述的策略就可以顺利的爬取拉勾网的数据了，为了提高速度，多弄点IP吧
 
