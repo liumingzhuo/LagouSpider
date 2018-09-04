@@ -161,5 +161,17 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 
 
+#### 当前爬虫速度
+
+每小时爬取10万个页面，其中有效信息（职位信息）一万条
+
+
+
 ![gif](https://github.com/huangke19/LagouSpider/raw/master/gif.gif)
 
+
+
+#### 改进爬虫
+
+- 添加重试次数
+- 爬取的url分类保存
