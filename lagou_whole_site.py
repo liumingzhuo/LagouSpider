@@ -45,10 +45,12 @@ def crawl(url):
             html = r.text
             urls = parse_urls(html)
             for url in urls:
-                if not redis_conn.sismember(url, 'crawled_urls'):
+                if not redis_conn.sismember('crawled_urls', url):
                     redis_conn.sadd('un_crwaled_urls', url)
                 else:
                     continue
+        elif r.status_code == 301 or r.status_code == 404:
+            redis_conn.sadd('bad_urls', url)
         else:
             redis_conn.sadd('un_crwaled_urls', url)
             print('crawl爬虫出错 %s, status code %s' % (url, r.status_code))
@@ -69,8 +71,11 @@ def crawl_position(url):
             html = r.text
             data = parse_position(html)
             save_to_mongo(data)
-        else:
+        elif r.status_code == 301 or r.status_code == 404:
+            redis_conn.sadd('bad_urls', url)
+
             print('crawl position %s failed, status code %s' % (url, r.status_code))
+        else:
             redis_conn.sadd('un_crwaled_urls', url)
     except Exception as e:
         print(e)
@@ -211,7 +216,7 @@ def main():
 
 if __name__ == '__main__':
     t1 = time.time()
-    for i in range(30):
+    for i in range(60):
         t = threading.Thread(target=main, args=())
         t.start()
     t.join()
