@@ -46,7 +46,7 @@ def crawler_links(url, retry_num=2, charset='utf-8'):
             for _url in urls:
                 if not redis_conn.sismember('crawled_urls', _url):
                     if is_postion_url(_url):
-                        print('抓到职位url %s' % _url)
+                        print('--抓到职位-- url %s' % _url)
                         redis_conn.sadd('position_urls', _url)
                     else:
                         redis_conn.sadd('un_crawled_urls', _url)
@@ -112,7 +112,7 @@ def main():
 if __name__ == '__main__':
     t1 = time.time()
     lock = threading.Lock()
-    for i in range(20):
+    for i in range(100):
         t = threading.Thread(target=main, args=())
         t.start()
         time.sleep(1)
