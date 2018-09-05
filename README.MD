@@ -91,6 +91,18 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
    > 经对比，每一页的Cookie是一样的
 
+3. 部分职位已经过期清空
+
+   > 写一个checker进行判断，如果有“已下线”标志就直接返回不解析
+
+4. 如何应对返回码是200，但是页面是要求填验证码的页面
+
+   > 在soup解析时进行检查
+
+5. 如何应对解析规则变化？
+
+   > 对解析函数写一个测试，通过assert语句定位具体是哪一条解析错误
+
 
 
 
