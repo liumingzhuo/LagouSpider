@@ -7,13 +7,11 @@
 >
 > -- Richard Feynman
 
-![line](https://github.com/huangke19/LagouSpider/raw/master/lines/bird.jpg)
-
 本仓库包含两个爬虫，[小爬虫](https://github.com/huangke19/LagouSpider/blob/master/lagou_index.py)只爬取成都地区的工作职位，可以指定职位名字和要爬的页数，[大爬虫](https://github.com/huangke19/LagouSpider/blob/master/lagou_whole_site.py)是爬取拉勾整站的爬虫，正在编写中...
 
 
 
-## 准备工作
+#### 准备工作
 
 - 第一步，观察一下拉勾网的robots.txt，看一下有没有什么可用的信息
 
@@ -64,9 +62,9 @@
 #### 拉勾的反爬措施和解决
 
 >|             反爬              |     解决方案     |
-| :---------------------------: | :--------------: |
-|     直接访问ajax url 403      |   带上Referer    |
-| 无Cookie时限制IP频率（5/min） | 带上有效的Cookie |
+>| :---------------------------: | :--------------: |
+>|     直接访问ajax url 403      |   带上Referer    |
+>| 无Cookie时限制IP频率（5/min） | 带上有效的Cookie |
 
 
 
@@ -76,11 +74,10 @@
 TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with url: /gongsi/j144972.html (Caused by ProxyError('Cannot connect to proxy.', timeout('_ssl.c:817: The handshake operation timed out',)))
 ```
 
-开始解决问题
+#### 开始解决问题
 
-> 1. 首先尝试一下回退降速，看一下到底是不是被封IP了
-> 2. 问题解决了，没有被封IP，再提速后恢复正常，是服务器临时出了问题？
->
+1. 首先尝试一下回退降速，看一下到底是不是被封IP了
+2. 问题解决了，没有被封IP，再提速后恢复正常，是服务器临时出了问题？
 
 按照上述的策略就可以顺利的爬取拉勾网的数据了，为了提高速度，多弄点IP吧
 
@@ -88,26 +85,25 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 #### 问题
 
-> 1. 为什么手动点网站可以点很多次，但是用爬虫就被限制到5次第分钟呢？
->
->    > 5次限制：经过试验，发现如果不带Cookie，那就只能每分钟访问5次，带上Cookie后可以突破此限制
->
-> 2. 每次访问的Cookie有区别吗？
->
->    > 经对比，每一页的Cookie是一样的
->
-> 3. 部分职位已经过期清空
->
->    > 写一个checker进行判断，如果有“已下线”标志就直接返回不解析
->
-> 4. 如何应对返回码是200，但是页面是要求填验证码的页面
->
->    > 在soup解析时进行检查
->
-> 5. 如何应对解析规则变化？
->
->    > 对解析函数写一个测试，通过assert语句定位具体是哪一条解析错误
->
+1. 为什么手动点网站可以点很多次，但是用爬虫就被限制到5次第分钟呢？
+
+   > 5次限制：经过试验，发现如果不带Cookie，那就只能每分钟访问5次，带上Cookie后可以突破此限制
+
+2. 每次访问的Cookie有区别吗？
+
+   > 经对比，每一页的Cookie是一样的
+
+3. 部分职位已经过期清空
+
+   > 写一个checker进行判断，如果有“已下线”标志就直接返回不解析
+
+4. 如何应对返回码是200，但是页面是要求填验证码的页面
+
+   > 在soup解析时进行检查
+
+5. 如何应对解析规则变化？
+
+   > 对解析函数写一个测试，通过assert语句定位具体是哪一条解析错误
 
 
 
@@ -121,12 +117,11 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 #### 思路
 
-> 主思路：从首页出发，递归抓取所有带lagou字符串的新url，放入待爬队列
->
+主思路：从首页出发，递归抓取所有带lagou字符串的新url，放入待爬队列
 
 ![workflow](https://github.com/huangke19/LagouSpider/raw/master/workflow.jpg)
 
-#### 具体步骤：
+#### 具体步骤
 
 > 1. 将start_url放入待爬队列
 > 2. 调用通用信息爬虫函数，抓取所有带lagou字符串的新url，放入待爬队列
@@ -141,26 +136,23 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 
 
-> #### 使用Redis进行去重和保存url队列
->
-> 通过Redis的集合进行去重，同时保存已爬和待爬队列，避免了爬虫出现异常状况又重头开始爬
->
+#### 使用Redis进行去重和保存url队列
+
+通过Redis的集合进行去重，同时保存已爬和待爬队列，避免了爬虫出现异常状况又重头开始爬
 
 
 
-> #### 拆分函数
->
-> 将各个功能拆分开来，使爬虫结构清晰，同时出了问题便于定位和调试
->
-> 每个函数只做一件事，也方便进行单元测试
->
+#### 拆分函数
+
+将各个功能拆分开来，使爬虫结构清晰，同时出了问题便于定位和调试
+
+每个函数只做一件事，也方便进行单元测试
 
 
 
-> #### 当前爬虫速度
->
-> 每小时爬取10万个页面，其中有效信息（职位信息）一万条
->
+#### 当前爬虫速度
+
+每小时爬取10万个页面，其中有效信息（职位信息）一万条
 
 
 
@@ -170,9 +162,8 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 #### 改进爬虫
 
-> - 添加重试次数
-> - 爬取的url分类保存ip
->
+- 添加重试次数
+- 爬取的url分类保存ip
 
 
 
@@ -195,21 +186,21 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 #### 开启Redis远程连接
 
-> 配置redis.conf文件，开启远程连接，注释掉bind，将保护模式关闭
->
-> 如果/usr/local/etc/下没有redis.conf文件，考虑用brew重装mo
->
-> ```
-> # bind 127.0.0.1 
-> protected mode no
-> ```
->
-> 开启mongodb远程连接
->
-> ```
-> bindip: 本机IP，slaveIP
-> ```
->
+- 配置redis.conf文件，开启远程连接，注释掉bind，将保护模式关闭
+
+  如果/usr/local/etc/下没有redis.conf文件，考虑用brew重装mo
+
+  ```
+  # bind 127.0.0.1 
+  protected mode no
+  ```
+
+- 开启mongodb远程连接
+
+  ```
+  bindip: 本机IP，slaveIP
+  ```
+
 
 
 
