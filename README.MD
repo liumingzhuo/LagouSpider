@@ -50,7 +50,7 @@
   >
   > url解码后 https://www.lagou.com/jobs/positionAjax.json?city=成都&needAddtionalResult=false
 
-- Form Data:
+- ###### Form Data:
 
   > | first |  true  |  是否是首页  |
   > | :---: | :----: | :----------: |
@@ -221,4 +221,4 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 ## 结果
 
-当前爬取拉勾整站链接 200万，剩余约70万url待爬取，获取目标职位数据 17万，耗时一夜加一上午，继续爬取中，数据待分类... 
+当前爬取拉勾整站链接约200万，剩余约70万url待爬取，获取目标职位数据 17万，耗时一夜加一上午，继续爬取中，数据待分类... 
