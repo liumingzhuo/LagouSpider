@@ -61,53 +61,11 @@
 
 
 
-#### 拉勾的反爬措施和解决
-
->|             反爬              |     解决方案     |
->| :---------------------------: | :--------------: |
->|     直接访问ajax url 403      |   带上Referer    |
->| 无Cookie时限制IP频率（5/min） | 带上有效的Cookie |
 
 
 
-一更：开了30个线程爬了一个小时，终于激活了拉勾的新反爬措施，现在报443错误了，等的就是你！
 
-```
-TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with url: /gongsi/j144972.html (Caused by ProxyError('Cannot connect to proxy.', timeout('_ssl.c:817: The handshake operation timed out',)))
-```
-
-
-
-#### 解决问题
-
-1. 首先尝试一下回退降速，看一下到底是不是被封IP了
-2. 问题解决了，没有被封IP，再提速后恢复正常，是服务器临时出了问题？
-
-按照上述的策略就可以顺利的爬取拉勾网的数据了，为了提高速度，多弄点IP吧
-
-
-
-#### 问题
-
-1. 为什么手动点网站可以点很多次，但是用爬虫就被限制到5次第分钟呢？
-
-   > 5次限制：经过试验，发现如果不带Cookie，那就只能每分钟访问5次，带上Cookie后可以突破此限制
-
-2. 每次访问的Cookie有区别吗？
-
-   > 经对比，每一页的Cookie是一样的
-
-3. 部分职位已经过期清空
-
-   > 写一个checker进行判断，如果有“已下线”标志就直接返回不解析
-
-4. 如何应对返回码是200，但是页面是要求填验证码的页面
-
-   > 在soup解析时进行检查
-
-5. 如何应对解析规则变化？
-
-   > 对解析函数写一个测试，通过assert语句定位具体是哪一条解析错误
+1. > 
 
 
 
@@ -211,6 +169,55 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 
 
-#### 再一次触发反爬，数据为空
 
-1. 检查cookie是否过期
+![dd](https://github.com/huangke19/LagouSpider/raw/master/lines/bird.jpg)
+
+
+
+## 拉勾的反爬措施和解决
+
+>|             反爬              |     解决方案     |
+>| :---------------------------: | :--------------: |
+>|     直接访问ajax url 403      |   带上Referer    |
+>| 无Cookie时限制IP频率（5/min） | 带上有效的Cookie |
+
+
+
+一更：开了30个线程爬了一个小时，终于激活了拉勾的新反爬措施，现在报443错误了，等的就是你！
+
+```
+TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with url: /gongsi/j144972.html (Caused by ProxyError('Cannot connect to proxy.', timeout('_ssl.c:817: The handshake operation timed out',)))
+```
+
+1. 首先尝试一下回退降速，看一下到底是不是被封IP了
+2. 问题解决了，没有被封IP，再提速后恢复正常，是服务器临时出了问题？
+
+
+
+
+
+#### 思考的问题
+
+1. 为什么手动点网站可以点很多次，但是用爬虫就被限制到5次第分钟呢？
+
+   > 5次限制：经过试验，发现如果不带Cookie，那就只能每分钟访问5次，带上Cookie后可以突破此限制
+
+2. 每次访问的Cookie有区别吗？
+
+   > 经对比，每一页的Cookie是一样的
+
+3. 部分职位已经过期清空
+
+   > 写一个checker进行判断，如果有“已下线”标志就直接返回不解析
+
+4. 如何应对返回码是200，但是页面并不是我们要的页面（比如是要求填验证码的页面）
+
+   > 在soup解析时进行检查
+
+5. 如何应对解析规则变化？
+
+   > 对解析函数写一个测试，通过assert语句定位具体是哪一条解析错误
+
+
+
+按照上述的策略就可以顺利的爬取拉勾网的数据了，为了提高速度，多弄点IP吧
