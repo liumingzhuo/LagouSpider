@@ -183,7 +183,7 @@
 
 
 
-一更：开了30个线程爬了一个小时，终于激活了拉勾的新反爬措施，现在报443错误了，等的就是你！
+#### 报443错误
 
 ```
 TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with url: /gongsi/j144972.html (Caused by ProxyError('Cannot connect to proxy.', timeout('_ssl.c:817: The handshake operation timed out',)))
@@ -191,6 +191,7 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 1. 首先尝试一下回退降速，看一下到底是不是被封IP了
 2. 问题解决了，没有被封IP，再提速后恢复正常，是服务器临时出了问题？
+3. charles软件引起的
 
 
 
