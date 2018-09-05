@@ -216,3 +216,9 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 
 按照上述的策略就可以顺利的爬取拉勾网的数据了，为了提高速度，多弄点IP吧
+
+
+
+## 结果
+
+当前爬取拉勾整站链接 200万，剩余约70万url待爬取，获取目标职位数据 17万，耗时一夜加一上午，继续爬取中，数据待分类... 
