@@ -81,7 +81,7 @@
 
 主思路：从首页出发，递归抓取所有带lagou字符串的新url，放入待爬队列
 
-![workflow](https://github.com/huangke19/LagouSpider/raw/master/workflow.jpg)
+![workflow](https://github.com/huangke19/LagouSpider/raw/master/lines/workflow.jpg)
 
 #### 具体步骤
 
@@ -121,7 +121,7 @@
 
 
 
-![gif](https://github.com/huangke19/LagouSpider/raw/master/gif.gif)
+![gif](https://github.com/huangke19/LagouSpider/raw/master/lines/gif.gif)
 
 
 
