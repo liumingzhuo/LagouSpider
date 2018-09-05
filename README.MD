@@ -1,4 +1,4 @@
-# *拉勾爬虫*
+# 拉勾爬虫
 
 > "What I cannot create, I do not understand."
 >
@@ -12,15 +12,17 @@
 
 
 
-第一步，观察一下拉勾网的robots.txt，看一下有没有什么可用的信息
+## 准备工作
 
-第二步，查看的拉勾的sitemap，没找到
+- 第一步，观察一下拉勾网的robots.txt，看一下有没有什么可用的信息
 
-第三步，估算拉勾的总大小，大约68万条数据
+- 第二步，查看的拉勾的sitemap，没找到
 
-> 使用谷歌高级搜索查询 site:www.lagou.com
->
-> 找到约 682,000 条结果 （用时 0.14 秒） 
+- 第三步，估算拉勾的总大小，大约68万条数据
+
+  > 使用谷歌高级搜索查询 site:www.lagou.com
+  >
+  > 找到约 682,000 条结果 （用时 0.14 秒） 
 
 
 
@@ -40,19 +42,18 @@
 
 #### Charles抓包分析
 
-#### ajax url：
+###### ajax url：
 
-- https://www.lagou.com/jobs/positionAjax.json?city=%E6%88%90%E9%83%BD&needAddtionalResult=false
-- url解码后 https://www.lagou.com/jobs/positionAjax.json?city=成都&needAddtionalResult=false
+> https://www.lagou.com/jobs/positionAjax.json?city=%E6%88%90%E9%83%BD&needAddtionalResult=false
+>
+> url解码后 https://www.lagou.com/jobs/positionAjax.json?city=成都&needAddtionalResult=false
 
+###### Form Data:
 
-#### Form Data:
-
-- first:  true       是否是首页
-
-- pn:	1		页数
-
-- kd: Python	搜索的关键字
+> | first |  true  |  是否是首页  |
+> | :---: | :----: | :----------: |
+> |  pn   |   1    |     页数     |
+> |  kd   | Python | 搜索的关键字 |
 
 
 可见只需要一个循环遍历所有页，带上pn和kd参数即可，爬取的时候记得关Charles
@@ -61,10 +62,12 @@
 
 #### 拉勾的反爬措施和解决
 
-|             反爬              |     解决方案     |
+>|             反爬              |     解决方案     |
 | :---------------------------: | :--------------: |
 |     直接访问ajax url 403      |   带上Referer    |
 | 无Cookie时限制IP频率（5/min） | 带上有效的Cookie |
+
+
 
 一更：开了30个线程爬了一个小时，终于激活了拉勾的新反爬措施，现在报443错误了，等的就是你！
 
@@ -74,8 +77,9 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 开始解决问题
 
-1. 首先尝试一下回退降速，看一下到底是不是被封IP了
-2. 问题解决了，没有被封IP，再提速后恢复正常，是服务器临时出了问题？
+> 1. 首先尝试一下回退降速，看一下到底是不是被封IP了
+> 2. 问题解决了，没有被封IP，再提速后恢复正常，是服务器临时出了问题？
+>
 
 按照上述的策略就可以顺利的爬取拉勾网的数据了，为了提高速度，多弄点IP吧
 
@@ -83,25 +87,26 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 #### 问题
 
-1. 为什么手动点网站可以点很多次，但是用爬虫就被限制到5次第分钟呢？
-
-   > 5次限制：经过试验，发现如果不带Cookie，那就只能每分钟访问5次，带上Cookie后可以突破此限制
-
-2. 每次访问的Cookie有区别吗？
-
-   > 经对比，每一页的Cookie是一样的
-
-3. 部分职位已经过期清空
-
-   > 写一个checker进行判断，如果有“已下线”标志就直接返回不解析
-
-4. 如何应对返回码是200，但是页面是要求填验证码的页面
-
-   > 在soup解析时进行检查
-
-5. 如何应对解析规则变化？
-
-   > 对解析函数写一个测试，通过assert语句定位具体是哪一条解析错误
+> 1. 为什么手动点网站可以点很多次，但是用爬虫就被限制到5次第分钟呢？
+>
+>    > 5次限制：经过试验，发现如果不带Cookie，那就只能每分钟访问5次，带上Cookie后可以突破此限制
+>
+> 2. 每次访问的Cookie有区别吗？
+>
+>    > 经对比，每一页的Cookie是一样的
+>
+> 3. 部分职位已经过期清空
+>
+>    > 写一个checker进行判断，如果有“已下线”标志就直接返回不解析
+>
+> 4. 如何应对返回码是200，但是页面是要求填验证码的页面
+>
+>    > 在soup解析时进行检查
+>
+> 5. 如何应对解析规则变化？
+>
+>    > 对解析函数写一个测试，通过assert语句定位具体是哪一条解析错误
+>
 
 
 
@@ -115,7 +120,8 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 #### 思路
 
-主思路：从首页出发，递归抓取所有带lagou字符串的新url，放入待爬队列
+> 主思路：从首页出发，递归抓取所有带lagou字符串的新url，放入待爬队列
+>
 
 ![workflow](https://github.com/huangke19/LagouSpider/raw/master/workflow.jpg)
 
@@ -134,23 +140,26 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 
 
-#### 使用Redis进行去重和保存url队列
-
-通过Redis的集合进行去重，同时保存已爬和待爬队列，避免了爬虫出现异常状况又重头开始爬
-
-
-
-#### 拆分函数
-
-将各个功能拆分开来，使爬虫结构清晰，同时出了问题便于定位和调试
-
-每个函数只做一件事，也方便进行单元测试
+> #### 使用Redis进行去重和保存url队列
+>
+> 通过Redis的集合进行去重，同时保存已爬和待爬队列，避免了爬虫出现异常状况又重头开始爬
+>
 
 
 
-#### 当前爬虫速度
+> #### 拆分函数
+>
+> 将各个功能拆分开来，使爬虫结构清晰，同时出了问题便于定位和调试
+>
+> 每个函数只做一件事，也方便进行单元测试
+>
 
-每小时爬取10万个页面，其中有效信息（职位信息）一万条
+
+
+> #### 当前爬虫速度
+>
+> 每小时爬取10万个页面，其中有效信息（职位信息）一万条
+>
 
 
 
@@ -160,8 +169,9 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 #### 改进爬虫
 
-- 添加重试次数
-- 爬取的url分类保存ip
+> - 添加重试次数
+> - 爬取的url分类保存ip
+>
 
 
 
@@ -175,28 +185,30 @@ TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with ur
 
 ## 改造成分布式
 
-主从式分布爬虫：使用master节点抓取职位url并入列，使用slave节点取队列中取url进行抓取
+- 主从式分布爬虫：使用master节点抓取职位url并入列，使用slave节点取队列中取url进行抓取
 
-对等式分布爬虫： 使用上面的全站爬虫分别在不同的机器上运行，设置好共用redis和mongodb即可
+- 对等式分布爬虫： 使用上面的全站爬虫分别在不同的机器上运行，设置好共用redis和mongodb即可
+
 
 
 
 #### 开启Redis远程连接
 
-配置redis.conf文件，开启远程连接，注释掉bind，将保护模式关闭
-
-如果/usr/local/etc/下没有redis.conf文件，考虑用brew重装mo
-
-```
-# bind 127.0.0.1 
-protected mode no
-```
-
-开启mongodb远程连接
-
-```
-bindip: 本机IP，slaveIP
-```
+> 配置redis.conf文件，开启远程连接，注释掉bind，将保护模式关闭
+>
+> 如果/usr/local/etc/下没有redis.conf文件，考虑用brew重装mo
+>
+> ```
+> # bind 127.0.0.1 
+> protected mode no
+> ```
+>
+> 开启mongodb远程连接
+>
+> ```
+> bindip: 本机IP，slaveIP
+> ```
+>
 
 
 
