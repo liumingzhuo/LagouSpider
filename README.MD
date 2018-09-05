@@ -41,18 +41,20 @@
 
 #### Charles抓包分析
 
-###### ajax url：
+- ###### ajax url：
 
-> https://www.lagou.com/jobs/positionAjax.json?city=%E6%88%90%E9%83%BD&needAddtionalResult=false
->
-> url解码后 https://www.lagou.com/jobs/positionAjax.json?city=成都&needAddtionalResult=false
+  > https://www.lagou.com/jobs/positionAjax.json?city=%E6%88%90%E9%83%BD&needAddtionalResult=false
+  >
+  > url解码后 https://www.lagou.com/jobs/positionAjax.json?city=成都&needAddtionalResult=false
 
-###### Form Data:
+- Form Data:
 
-> | first |  true  |  是否是首页  |
-> | :---: | :----: | :----------: |
-> |  pn   |   1    |     页数     |
-> |  kd   | Python | 搜索的关键字 |
+  > | first |  true  |  是否是首页  |
+  > | :---: | :----: | :----------: |
+  > |  pn   |   1    |     页数     |
+  > |  kd   | Python | 搜索的关键字 |
+
+
 
 
 可见只需要一个循环遍历所有页，带上pn和kd参数即可，爬取的时候记得关Charles
@@ -74,7 +76,9 @@
 TTPSConnectionPool(host='www.lagou.com', port=443): Max retries exceeded with url: /gongsi/j144972.html (Caused by ProxyError('Cannot connect to proxy.', timeout('_ssl.c:817: The handshake operation timed out',)))
 ```
 
-#### 开始解决问题
+
+
+#### 解决问题
 
 1. 首先尝试一下回退降速，看一下到底是不是被封IP了
 2. 问题解决了，没有被封IP，再提速后恢复正常，是服务器临时出了问题？
