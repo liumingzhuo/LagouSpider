@@ -7,7 +7,10 @@
 >
 > -- Richard Feynman
 
-本仓库包含两个爬虫，[小爬虫](https://github.com/huangke19/LagouSpider/blob/master/lagou_index.py)只爬取成都地区的工作职位，可以指定职位名字和要爬的页数，[大爬虫](https://github.com/huangke19/LagouSpider/blob/master/lagou_whole_site.py)是爬取拉勾整站的爬虫，正在编写中...
+本仓库包含两个爬虫
+
+- [小爬虫](https://github.com/huangke19/LagouSpider/blob/master/lagou_index.py)只爬取成都地区的工作职位，可以指定职位名字和要爬的页数
+- [大爬虫](https://github.com/huangke19/LagouSpider/blob/master/lagou_whole_site.py)是爬取拉勾整站的爬虫，正在编写中...
 
 
 
